@@ -1,0 +1,1183 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>3.14 Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: HEC blue on white. Main column for Learn / Workshop / Practice, a sticky coach panel on the right (stacks below on phones). */
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --tint: #eef3f8;        /* HEC blue at ~7% */
+  --tint-2: #dbe6f1;
+  --ink: #004279;         /* HEC blue */
+  --text: #0d2c4d;
+  --muted: #4f6d8f;
+  --line: #c8d6e5;
+  --fill: #004279;        /* solid brand surface */
+  --on-fill: #ffffff;
+  /* the model's own colour code, as in the course slides (darkened for contrast) */
+  --vp: #a3287a;          /* value proposition: magenta */
+  --vp-soft: #f7e6f0;
+  --va: #00738f;          /* value architecture: teal */
+  --va-soft: #e0f1f5;
+  --pe: #4a7313;          /* contributions: green */
+  --pe-soft: #edf4df;
+  --on-model: #ffffff;
+  --good: #1e7a3c;
+  --bad: #b3261e;
+  --font: "Montserrat", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #002a4f; --surface: #003461; --tint: #003c6e; --tint-2: #0a4a82; --ink: #ffffff; --text: #e8f0f8; --muted: #a9c0d8; --line: #1d5487;
+  --fill: #ffffff; --on-fill: #004279; --good: #7fd49a; --bad: #ff9a92;
+  --vp: #e889c3; --vp-soft: #3b1f36; --va: #5cc8e0; --va-soft: #0b3a4a; --pe: #a9d45a; --pe-soft: #283a14; --on-model: #00223f; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #002a4f; --surface: #003461; --tint: #003c6e; --tint-2: #0a4a82; --ink: #ffffff; --text: #e8f0f8; --muted: #a9c0d8; --line: #1d5487;
+  --fill: #ffffff; --on-fill: #004279; --good: #7fd49a; --bad: #ff9a92;
+  --vp: #e889c3; --vp-soft: #3b1f36; --va: #5cc8e0; --va-soft: #0b3a4a; --pe: #a9d45a; --pe-soft: #283a14; --on-model: #00223f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px; }
+h1, h2, h3 { font-family: var(--font); color: var(--ink); text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(32px, 4.6vw, 48px); font-weight: 800; letter-spacing: -0.02em; }
+h1 em { font-style: normal; font-weight: 400; }
+h2 { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 18px; font-weight: 700; }
+p { margin: 0; }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { max-width: 1240px; margin: 0 auto; }
+.block { display: grid; gap: 14px; }
+
+header.top { padding-block: 32px 22px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: end; justify-content: space-between; border-bottom: 2px solid var(--ink); }
+header.top .lede { color: var(--muted); max-width: 60ch; margin-top: 10px; }
+nav.tabs { display: flex; gap: 4px; border: 1px solid var(--line); padding: 4px; border-radius: 0; }
+nav.tabs button { border: 0; background: transparent; padding: 8px 16px; border-radius: 0; cursor: pointer; font-weight: 600; color: var(--muted); }
+nav.tabs button[aria-selected="true"] { background: var(--fill); color: var(--on-fill); }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; margin-top: 28px; align-items: start; }
+@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+main { min-width: 0; display: grid; gap: 28px; }
+section.view { display: grid; gap: 36px; }
+
+/* Learn */
+.pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .pillars { grid-template-columns: minmax(0, 1fr); } }
+.pillar { border-radius: 0; padding: 18px; display: grid; gap: 8px; align-content: start; border: 1px solid var(--ink); }
+.pillar.vp { background: var(--fill); color: var(--on-fill); }
+.pillar.vp h3 { color: var(--on-fill); }
+.pillar.va { background: var(--tint); border-color: var(--tint); }
+.pillar.pe { background: var(--surface); }
+.pillar ul { margin: 0; padding-left: 18px; }
+.formula { font-weight: 600; color: var(--ink); background: var(--tint); border-radius: 0; padding: 10px 14px; overflow-x: auto; }
+.stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .stages { grid-template-columns: minmax(0, 1fr); } }
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: 0; padding: 18px; display: grid; gap: 8px; align-content: start; }
+.stage p { color: var(--muted); }
+.dir { background: var(--surface); border: 1px solid var(--line); border-radius: 0; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.dir.vp { border-top: 3px solid var(--ink); }
+.dir.va { border-top: 3px solid var(--tint-2); }
+.dir strong { font-size: 14.5px; line-height: 1.35; color: var(--ink); }
+.num { font-weight: 800; color: var(--ink); margin-right: 4px; font-variant-numeric: tabular-nums; }
+.dir .q { color: var(--muted); font-size: 13.5px; }
+.dir .ex { font-size: 13px; border-top: 1px dashed var(--line); padding-top: 6px; }
+.note { font-size: 13px; color: var(--muted); }
+
+.pillar-row { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 24px; align-items: center; }
+@media (max-width: 720px) { .pillar-row { grid-template-columns: minmax(0, 1fr); } .wheel { max-width: 190px; justify-self: center; } }
+.wheel { width: 100%; height: auto; display: block; }
+.wheel .w1 { fill: var(--ink); } .wheel .w2 { fill: var(--tint-2); } .wheel .w3 { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.wheel .wsep { stroke: var(--bg); stroke-width: 4; }
+.wheel .whub { fill: var(--bg); pointer-events: none; }
+.wheel path { cursor: pointer; transition: opacity .15s; }
+.wheel text, .wheel line { pointer-events: none; }
+.wheel.picked path:not(.on) { opacity: .35; }
+.pillar { cursor: pointer; }
+.pillar:hover { outline: 2px solid var(--ink); outline-offset: 2px; }
+.pillar[aria-pressed="true"] { outline: 3px solid var(--ink); outline-offset: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { border: 1px solid var(--ink); background: var(--surface); color: var(--ink); padding: 6px 10px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; }
+.chips button:hover { background: var(--fill); color: var(--on-fill); }
+.chips button .num { margin-right: 6px; }
+.flow { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 6px; align-items: center; font-size: 13px; text-align: center; }
+.flow span { background: var(--surface); padding: 10px 8px; display: grid; gap: 2px; color: var(--ink); font-weight: 600; }
+.flow small { font-weight: 400; color: var(--muted); font-size: 11.5px; }
+.flow i { font-style: normal; font-weight: 800; color: var(--ink); }
+.flow .full { grid-column: 1 / -1; }
+.wheel text { font-family: var(--font); font-weight: 800; font-size: 26px; }
+.wheel .wt1 { fill: var(--bg); } .wheel .wt2, .wheel .wt3 { fill: var(--ink); }
+.wheel .wthub { fill: var(--ink); font-size: 17px; }
+.ex-line { color: var(--text) !important; font-size: 13.5px; border-top: 1px dashed var(--line); padding-top: 8px; }
+.board { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+@media (max-width: 680px) { .board { grid-template-columns: minmax(0, 1fr); } }
+.side { display: grid; gap: 5px; align-content: start; }
+.side h3 { font-size: 16px; padding-bottom: 4px; }
+.side.va h3 { text-align: right; }
+.board button { display: flex; align-items: stretch; gap: 12px; border: 0; background: var(--tint); color: var(--ink); padding: 0; min-height: 44px; cursor: pointer; text-align: left; font-weight: 600; font-size: 13.5px; line-height: 1.3; }
+.board button .t { align-self: center; padding: 6px 12px 6px 0; }
+.board button .n { flex: 0 0 44px; display: grid; place-items: center; font-weight: 800; font-size: 15px; }
+.board .vp button .n { background: var(--fill); color: var(--on-fill); }
+.board .va button { flex-direction: row-reverse; text-align: right; }
+.board .va button .t { padding: 6px 0 6px 12px; }
+.board .va button .n { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+.board button:hover { background: var(--tint-2); }
+.board button[aria-pressed="true"] { background: var(--fill); color: var(--on-fill); }
+.board button[aria-pressed="true"] .n { background: var(--on-fill); color: var(--ink); box-shadow: inset 0 0 0 2px var(--fill); }
+@media (max-width: 680px) { .board .va button { flex-direction: row; text-align: left; } .board .va button .t { padding: 6px 12px 6px 0; } .side.va h3 { text-align: left; } }
+.detail { border: 2px solid var(--ink); padding: 20px; display: grid; gap: 18px; }
+.detail .head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.detail .head h3 { font-size: 22px; }
+.detail .head p { color: var(--muted); }
+.detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.detail-grid.solo { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 760px) { .detail-grid { grid-template-columns: minmax(0, 1fr); } }
+.qs { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.qs-wrap { display: grid; gap: 8px; }
+.qs-wrap h4, .exs h4 { margin: 0; font-size: 15px; color: var(--ink); }
+.exs { display: grid; gap: 8px; }
+.ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.ex-card { border: 1px solid var(--line); padding: 12px; display: grid; gap: 4px; align-content: start; }
+.ex-card b { color: var(--ink); }
+.ex-card span { font-size: 13.5px; color: var(--muted); }
+.viz { background: var(--tint); padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.viz svg { width: 100%; height: auto; display: block; max-height: 230px; }
+.viz svg text { fill: var(--text); font-family: var(--font); font-size: 11px; font-weight: 500; }
+.viz svg text.b { font-weight: 800; font-size: 13px; }
+.viz svg text.inv { fill: var(--on-fill); }
+.viz svg .ax { stroke: var(--ink); stroke-width: 2; }
+.viz svg .dash { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 5 4; }
+.viz svg .dash.thin { stroke: var(--line); stroke-width: 1; }
+.viz svg .solid { fill: var(--fill); } .viz svg .soft { fill: var(--tint-2); } .viz svg .soft2 { fill: var(--line); }
+.cap { font-size: 12.5px; color: var(--muted); }
+.formula.small { font-size: 13px; background: var(--surface); }
+.ba { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: center; font-size: 13.5px; }
+.ba span { background: var(--surface); padding: 8px 10px; font-weight: 600; color: var(--ink); }
+.ba .was { text-decoration: line-through; color: var(--muted); font-weight: 400; }
+.ba .arrow, .plat .arrow { background: none; padding: 0; font-weight: 800; color: var(--ink); }
+.scale { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: center; font-size: 13px; font-weight: 600; }
+.scale span { padding: 10px; background: var(--surface); color: var(--ink); text-align: center; }
+.scale .mid { background: var(--fill); color: var(--on-fill); }
+.scale-ex { display: grid; gap: 6px; font-size: 13px; }
+.scale-ex .r { text-align: right; }
+.plat { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; font-size: 13.5px; }
+.plat span { padding: 10px 12px; background: var(--surface); color: var(--ink); font-weight: 600; text-align: center; }
+.solidbox { background: var(--fill) !important; color: var(--on-fill) !important; }
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 12.5px; }
+.trio span { background: var(--surface); padding: 10px; display: grid; gap: 2px; color: var(--text); }
+.trio b { color: var(--ink); font-weight: 800; }
+.ways { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; counter-reset: w; }
+.ways li { counter-increment: w; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 10px; background: var(--surface); padding: 8px 10px 8px 0; font-size: 13px; }
+.ways li::before { content: counter(w); grid-row: span 2; background: var(--fill); color: var(--on-fill); font-weight: 800; display: grid; place-items: center; margin-top: -8px; margin-bottom: -8px; }
+.ways b { color: var(--ink); } .ways span { color: var(--muted); }
+.chain { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; }
+.chain span { background: var(--surface); padding: 8px 10px; font-weight: 600; color: var(--ink); }
+.chain i { font-style: normal; color: var(--muted); }
+.chain .on { background: var(--fill); color: var(--on-fill); }
+.chain .off { text-decoration: line-through; color: var(--muted); font-weight: 400; }
+.chain .add { outline: 2px dashed var(--ink); outline-offset: -2px; }
+.quad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; font-size: 12.5px; }
+.quad span { background: var(--surface); padding: 10px; display: grid; gap: 2px; color: var(--muted); }
+.quad b { color: var(--ink); font-size: 13.5px; }
+.hub { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: ". t ." "l c r"; gap: 6px; font-size: 13px; text-align: center; }
+.hub span { background: var(--surface); padding: 10px 6px; font-weight: 600; color: var(--ink); display: grid; gap: 2px; }
+.hub small { font-weight: 400; color: var(--muted); font-size: 11.5px; }
+.hub .t { grid-area: t; } .hub .l { grid-area: l; } .hub .c { grid-area: c; } .hub .r { grid-area: r; }
+.combine { background: var(--tint); padding: 18px; display: grid; gap: 8px; }
+.side-head { display: grid; justify-items: end; gap: 12px; }
+.art { width: 150px; height: 150px; }
+.art svg { width: 100%; height: 100%; display: block; }
+.art .d1 { fill: var(--ink); } .art .d2 { fill: var(--muted); } .art .d3 { fill: var(--tint-2); }
+@media (max-width: 760px) { .art { display: none; } }
+.ic { display: inline-grid; place-items: center; flex: 0 0 auto; }
+.ic svg, .wheel .wic { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ic svg .fl, .wheel .wic .fl { fill: currentColor; }
+.ic svg .dsh, .wheel .wic .dsh { stroke-dasharray: 2.2 2.4; }
+.board button .ic { align-self: center; }
+.board button .ic svg { width: 20px; height: 20px; }
+.wheel .wic.i1 { stroke: var(--bg); } .wheel .wic.i2, .wheel .wic.i3 { stroke: var(--ink); }
+.wheel .wic.i1 .fl { fill: var(--bg); } .wheel .wic.i2 .fl, .wheel .wic.i3 .fl { fill: var(--ink); }
+.bigic { width: 56px; height: 56px; background: var(--fill); color: var(--on-fill); display: grid; place-items: center; flex: 0 0 56px; }
+.bigic svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.bigic svg .fl { fill: currentColor; } .bigic svg .dsh { stroke-dasharray: 2.2 2.4; }
+.hd { display: flex; gap: 14px; align-items: center; min-width: 0; }
+.pic svg { width: 30px; height: 30px; }
+.verdict .ic svg { width: 26px; height: 26px; }
+.verdict-row { display: flex; gap: 12px; align-items: start; }
+/* Model colours: pillars and directions carry the course's colour code; the frame stays HEC blue */
+.vp, [data-p="vp"] { --acc: var(--vp); --acc-soft: var(--vp-soft); }
+.va, [data-p="va"] { --acc: var(--va); --acc-soft: var(--va-soft); }
+.pe, [data-p="pe"] { --acc: var(--pe); --acc-soft: var(--pe-soft); }
+.wheel .w1 { fill: var(--vp); } .wheel .w2 { fill: var(--va); } .wheel .w3 { fill: var(--pe); stroke: none; }
+.wheel .wt1, .wheel .wt2, .wheel .wt3 { fill: var(--on-model); }
+.pillar { border: 0; border-top: 5px solid var(--acc); background: var(--acc-soft) !important; color: var(--text) !important; }
+.pillar h3, .pillar .pic { color: var(--acc) !important; }
+.pillar:hover { outline-color: var(--acc); }
+.pillar[aria-pressed="true"] { outline: 3px solid var(--acc); }
+.side h3 { color: var(--acc); }
+.board .side button { background: var(--acc-soft); color: var(--text); }
+.board .side button:hover { background: color-mix(in srgb, var(--acc) 22%, var(--bg)); }
+.board .side button .n { background: var(--acc); color: var(--on-model); box-shadow: none; }
+.board .side button .ic { color: var(--acc); }
+.board .side button[aria-pressed="true"] { background: var(--acc); color: var(--on-model); }
+.board .side button[aria-pressed="true"] .n { background: var(--on-model); color: var(--acc); box-shadow: inset 0 0 0 2px var(--acc); }
+.board .side button[aria-pressed="true"] .ic { color: var(--on-model); }
+.detail[data-p] { border-color: var(--acc); }
+.detail[data-p] .head h3 { color: var(--acc); }
+.detail[data-p] .bigic { background: var(--acc); color: var(--on-model); }
+.detail[data-p] .viz { background: var(--acc-soft); }
+.detail[data-p] .viz svg .solid { fill: var(--acc); }
+.detail[data-p] .viz svg text.inv { fill: var(--on-model); }
+.detail[data-p] .solidbox, .detail[data-p] .chain .on, .detail[data-p] .scale .mid { background: var(--acc) !important; color: var(--on-model) !important; }
+.detail[data-p] .ways li::before { background: var(--acc); color: var(--on-model); }
+.detail[data-p] .chain .add { outline-color: var(--acc); }
+.detail[data-p] .viz svg .ax, .detail[data-p] .viz svg .dash:not(.thin) { stroke: var(--acc); }
+.chips button.vp, .chips button.va { border-color: var(--acc); color: var(--acc); }
+.chips button.vp:hover, .chips button.va:hover { background: var(--acc); color: var(--on-model); }
+.chips button .num { color: inherit; }
+.col.vp, .col.va, .col.pe { border-top-color: var(--acc); }
+.col.vp h3, .col.va h3, .col.pe h3 { color: var(--acc); }
+.idea.vp, .idea.va { border-left: 5px solid var(--acc); }
+.dot.vp, .dot.va { background: var(--acc); color: var(--on-model); border-color: var(--acc); }
+.legend i.vp, .legend i.va { background: var(--acc); border-color: var(--acc); }
+.opts button .num.vp, .opts button .num.va { color: var(--acc); }
+.verdict .ic.vp, .verdict .ic.va { color: var(--acc); }
+.an-form { display: grid; gap: 14px; background: var(--tint); padding: 18px; }
+.an-form input[type="text"] { background: var(--surface); }
+.an-predict { display: grid; gap: 8px; }
+.an-predict .lbl { font-size: 13px; font-weight: 600; color: var(--ink); }
+.an-predict .hint { font-weight: 400; color: var(--muted); }
+.pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.pick button { border: 1px solid var(--acc); background: var(--surface); color: var(--acc); padding: 5px 9px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.pick button .ic svg { width: 16px; height: 16px; }
+.pick button[aria-pressed="true"] { background: var(--acc); color: var(--on-model); }
+.an-res { display: grid; gap: 22px; border: 2px solid var(--ink); padding: 20px; }
+.an-res .top { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; justify-content: space-between; }
+.an-res .top h3 { font-size: 24px; }
+.an-res .top p { color: var(--muted); }
+.conf { font-size: 12.5px; font-weight: 600; padding: 3px 10px; border: 1px solid var(--line); color: var(--muted); }
+.an-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 760px) { .an-cols { grid-template-columns: minmax(0, 1fr); } }
+.an-col { background: var(--acc-soft); border-top: 5px solid var(--acc); padding: 14px; display: grid; gap: 8px; align-content: start; font-size: 13.5px; }
+.an-col h4 { margin: 0; color: var(--acc); font-size: 15px; display: flex; gap: 8px; align-items: center; }
+.an-col h4 .ic svg { width: 20px; height: 20px; }
+.an-col dl { margin: 0; display: grid; gap: 6px; }
+.an-col dt { font-weight: 700; color: var(--ink); font-size: 12.5px; }
+.an-col dd { margin: 0; }
+.an-dirs { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.an-dir { border-left: 5px solid var(--acc); background: var(--acc-soft); padding: 12px; display: grid; gap: 4px; align-content: start; font-size: 13.5px; }
+.an-dir b { color: var(--acc); display: flex; gap: 8px; align-items: center; }
+.an-dir b .ic svg { width: 20px; height: 20px; }
+.an-dir .tag { font-size: 12px; font-weight: 700; }
+.an-dir .tag.hit { color: var(--good); } .an-dir .tag.miss { color: var(--muted); }
+.an-score { background: var(--tint); padding: 12px 14px; font-size: 14px; }
+.an-list { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.an-turn { background: var(--tint); padding: 16px; display: grid; gap: 10px; }
+.an-turn li b { color: var(--acc); }
+.an-sec { display: grid; gap: 10px; }
+.an-sec h4 { margin: 0; font-size: 16px; color: var(--ink); }
+@media (max-width: 560px) { .side-head { width: 100%; justify-items: stretch; } nav.tabs { width: 100%; } nav.tabs button { flex: 1 1 0; padding: 8px 4px; font-size: 13.5px; } }
+.foot { margin-top: 40px; padding-top: 16px; border-top: 2px solid var(--ink); font-size: 13px; color: var(--muted); }
+.dir-hint { font-size: 12.5px; color: var(--muted); }
+
+/* Workshop */
+.casebar { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; justify-content: space-between; background: var(--tint); border-radius: 0; padding: 16px; }
+.casebar .meta { display: grid; gap: 6px; min-width: 0; flex: 1 1 260px; }
+.steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.steps button { border: 1px solid var(--line); background: var(--surface); border-radius: 0; padding: 7px 14px; cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--muted); }
+.steps button[aria-selected="true"] { border-color: var(--fill); background: var(--fill); color: var(--on-fill); }
+.steps button .s { font-weight: 800; margin-right: 6px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 0; padding: 20px; display: grid; gap: 16px; }
+.panel .intro { color: var(--muted); max-width: 70ch; }
+.fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .fields { grid-template-columns: minmax(0, 1fr); } }
+.col { display: grid; gap: 10px; align-content: start; border-top: 3px solid var(--ink); padding-top: 10px; }
+.col h3 { font-size: 16px; }
+label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var(--ink); }
+label span.hint { font-weight: 400; color: var(--muted); font-size: 12.5px; }
+input[type="text"], textarea, select { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 0; padding: 8px 10px; font-size: 14px; font-weight: 400; }
+textarea { resize: vertical; min-height: 88px; line-height: 1.45; }
+label > select { align-self: start; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { border: 1px solid var(--fill); background: var(--fill); color: var(--on-fill); padding: 8px 14px; border-radius: 0; cursor: pointer; font-weight: 600; font-size: 14px; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.small { padding: 5px 10px; font-size: 13px; }
+.btn:disabled { opacity: .5; cursor: default; }
+.list { display: grid; gap: 8px; }
+.orth { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: start; }
+.orth .idx { font-weight: 800; color: var(--ink); padding-top: 8px; font-size: 13px; }
+.idea { border: 1px solid var(--line); border-radius: 0; padding: 12px; display: grid; gap: 10px; background: var(--tint); }
+.idea .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.impact { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+.impact label { font-size: 12px; }
+.matrix-wrap { overflow-x: auto; }
+.matrix { position: relative; height: 300px; min-width: 300px; border-left: 2px solid var(--ink); border-bottom: 2px solid var(--ink); margin: 8px 0 28px 34px; background:
+  linear-gradient(var(--line), var(--line)) 50% 0 / 1px 100% no-repeat, linear-gradient(var(--line), var(--line)) 0 50% / 100% 1px no-repeat; }
+.matrix .ax { position: absolute; font-size: 12px; font-weight: 600; color: var(--muted); }
+.matrix .ax.x { bottom: -26px; right: 0; } .matrix .ax.y { left: -30px; top: 0; writing-mode: vertical-rl; transform: rotate(180deg); }
+.matrix .q1 { position: absolute; right: 8px; top: 6px; font-size: 12px; color: var(--ink); font-weight: 700; }
+.dot { position: absolute; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; border: 2px solid var(--fill); }
+.dot.vp { background: var(--fill); color: var(--on-fill); } .dot.va { background: var(--surface); color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12.5px; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--fill); margin-right: 6px; vertical-align: -1px; }
+.legend i.vp { background: var(--fill); }
+.empty { color: var(--muted); font-style: italic; }
+
+/* Practice */
+.qcard { background: var(--surface); border: 1px solid var(--line); border-radius: 0; padding: 22px; display: grid; gap: 16px; }
+.qcard .case { font-size: 20px; font-weight: 600; line-height: 1.4; color: var(--ink); }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 600px) { .opts { grid-template-columns: minmax(0, 1fr); } }
+.opts button { text-align: left; border: 1px solid var(--line); background: var(--bg); padding: 11px 12px; border-radius: 0; cursor: pointer; font-weight: 500; }
+.opts button:hover { border-color: var(--ink); }
+.opts button.right { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+.opts button.wrong { border-color: var(--bad); box-shadow: inset 0 0 0 1px var(--bad); }
+.verdict { border-radius: 0; padding: 12px 14px; background: var(--tint); }
+.verdict b.ok { color: var(--good); } .verdict b.ko { color: var(--bad); }
+.score { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Coach */
+aside.coach { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--surface); border: 1px solid var(--line); border-radius: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; max-height: calc(100vh - 32px); min-width: 0; overflow: hidden; }
+@media (max-width: 960px) { aside.coach { position: static; max-height: none; } }
+.coach .head { padding: 16px; background: var(--fill); color: var(--on-fill); display: grid; gap: 4px; }
+.coach .head h2 { font-size: 22px; color: var(--on-fill); }
+.coach .head p { font-size: 13px; opacity: .85; }
+.log { overflow-y: auto; padding: 14px 16px; display: grid; gap: 12px; align-content: start; min-height: 220px; }
+.msg { font-size: 14px; line-height: 1.55; display: grid; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
+.msg.me { justify-self: end; background: var(--tint); padding: 8px 12px; border-radius: 0; max-width: 90%; }
+.msg.ai { border-left: 3px solid var(--ink); padding-left: 10px; }
+.msg ul { margin: 0; padding-left: 18px; }
+.msg.err { color: var(--bad); font-size: 13px; }
+.compose { border-top: 1px solid var(--line); padding: 12px; display: grid; gap: 8px; }
+.compose textarea { min-height: 54px; }
+.quick { display: flex; flex-wrap: wrap; gap: 6px; }
+.quick button { border: 1px solid var(--line); background: transparent; border-radius: 0; padding: 4px 10px; font-size: 12.5px; cursor: pointer; color: var(--ink); font-weight: 500; }
+.offline { padding: 14px 16px; font-size: 13.5px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .msg { animation: in .25s ease-out; } @keyframes in { from { transform: translateY(4px); } to { transform: none; } } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>3.14 <em>Studio</em></h1>
+      <p class="lede">For HEC Paris students. Learn the Odyssey 3.14 approach, then apply it to a real business: map the dominant model, surface its orthodoxies, explore the 14 directions and stress-test your ideas. A Socratic AI coach reviews each step without doing the work for you.</p>
+    </div>
+    <div class="side-head">
+    <div class="art" id="art" aria-hidden="true"></div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-learn" data-view="learn" aria-selected="false">Learn</button>
+      <button role="tab" id="tab-an" data-view="an" aria-selected="false">Analyse</button>
+      <button role="tab" id="tab-work" data-view="work" aria-selected="true">Workshop</button>
+      <button role="tab" id="tab-quiz" data-view="quiz" aria-selected="false">Practice</button>
+    </nav>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <!-- LEARN -->
+      <section class="view" id="view-learn" hidden>
+        <div class="block">
+          <h2>Three pillars</h2>
+          <p class="intro">Select a pillar on the wheel or below to explore it.</p>
+          <div class="pillar-row">
+            <svg class="wheel" viewBox="0 0 200 200" role="img" aria-label="The three pillars: 1 value proposition, 2 value architecture, 3 contributions">
+              <path class="w1" data-pillar="vp" d="M100 100 L100 8 A92 92 0 0 0 20.3 146 Z"/>
+              <path class="w2" data-pillar="va" d="M100 100 L179.7 146 A92 92 0 0 0 100 8 Z"/>
+              <path class="w3" data-pillar="pe" d="M100 100 L20.3 146 A92 92 0 0 0 179.7 146 Z"/>
+              <line class="wsep" x1="100" y1="100" x2="100" y2="6"/><line class="wsep" x1="100" y1="100" x2="18.6" y2="147"/><line class="wsep" x1="100" y1="100" x2="181.4" y2="147"/>
+              <circle class="whub" cx="100" cy="100" r="30"/>
+              <text class="wt1" x="62" y="80" text-anchor="middle">1</text><text class="wt2" x="138" y="80" text-anchor="middle">2</text><text class="wt3" x="100" y="160" text-anchor="middle">3</text>
+              <text class="wthub" x="100" y="106" text-anchor="middle">3.14</text>
+            </svg>
+            <div class="pillars">
+              <div class="pillar vp" data-pillar="vp" role="button" tabindex="0" aria-pressed="false"><h3>1. Value proposition</h3><p>What you offer, to whom, and at what price.</p>
+                <ul><li>Customers and non-customers</li><li>Offer: product, service, experience</li><li>Price and how customers pay</li></ul></div>
+              <div class="pillar va" data-pillar="va" role="button" tabindex="0" aria-pressed="false"><h3>2. Value architecture</h3><p>How you create and deliver that value.</p>
+                <ul><li>Value chain activities</li><li>Resources and competencies</li><li>Partners and ecosystem</li></ul></div>
+              <div class="pillar pe" data-pillar="pe" role="button" tabindex="0" aria-pressed="false"><h3>3. Contributions</h3><p>What the model gives back.</p>
+                <ul><li>Financial: revenue, costs, capital employed</li><li>Social: people and communities</li><li>Environmental: the planet</li></ul></div>
+            </div>
+          </div>
+          <div class="detail" id="pdetail" aria-live="polite"></div>
+          <p class="note">Why "3.14"? Three pillars to describe a business model, fourteen directions to reinvent it. Describe the model as it is today, then as it could be tomorrow.</p>
+        </div>
+
+        <div class="block">
+          <h2>Three critical prerequisites</h2>
+          <div class="stages">
+            <div class="stage"><h3>1. Anticipating trends</h3><p>Spot the shifts that will reshape your industry before your competitors do.</p><p class="ex-line">Tesla bet on electric cars while diesel still dominated.</p></div>
+            <div class="stage"><h3>2. Building on customer insights</h3><p>Watch how people really buy and use the offer, and design for that.</p><p class="ex-line">Decathlon designs its B'Twin bikes around how different people actually ride.</p></div>
+            <div class="stage"><h3>3. Challenging industry beliefs</h3><p>Question the rules that everyone in the industry takes for granted.</p><p class="ex-line">Cirque du Soleil: a circus without animals. Tesla: cars without petrol. Grameen Bank: lending to the poor.</p></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <h2>Three stages</h2>
+          <div class="stages">
+            <div class="stage"><h3>1. Understand the dominant model</h3><p>Describe the industry's model pillar by pillar. Then list its orthodoxies: the unwritten rules everyone takes for granted.</p></div>
+            <div class="stage"><h3>2. Generate ideas</h3><p>Challenge each orthodoxy with the 14 directions. Aim for quantity first, then combine ideas into coherent alternative models.</p></div>
+            <div class="stage"><h3>3. Test and implement</h3><p>Check the contributions, list the riskiest assumptions, run cheap experiments, and plan how the new model coexists with the old one.</p></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <h2>Fourteen directions</h2>
+          <p class="intro">Select a direction to see the questions to ask and the examples from the course.</p>
+          <div class="board" id="board">
+            <div class="side vp"><h3>Value proposition</h3></div>
+            <div class="side va"><h3>Value architecture</h3></div>
+          </div>
+          <div class="detail" id="detail" aria-live="polite"></div>
+          <div class="combine">
+            <h3>Combine the directions</h3>
+            <p>Strong business models rarely rely on one direction alone. Castalie reaches the non-customers of bottled water and cuts their costs at the same time; Fairphone reworks several steps of the phone value chain. Use the 14 directions as a checklist, then combine the best ideas into one coherent model.</p>
+          </div>
+          <p class="note">Content based on the course videos M2V1 to M2V16 and Lehmann-Ortega &amp; Musikas, <i>Reinvent your Business Model with the Odyssey 3.14 approach</i> (Dunod, 2nd ed.). Diagrams are redrawn and illustrative.</p>
+        </div>
+      </section>
+
+      <!-- ANALYSE -->
+      <section class="view" id="view-an" hidden>
+        <div class="block">
+          <h2>Analyse a company</h2>
+          <p class="intro">Name a company. The AI maps its business model onto the three pillars, identifies the directions it uses and the orthodoxies it challenged, and suggests directions it has not explored yet. Predict the directions first, then compare.</p>
+          <form class="an-form" id="an-form">
+            <label for="an-company">Company
+              <input type="text" id="an-company" placeholder="e.g. Decathlon, Vinted, Too Good To Go" autocomplete="off">
+            </label>
+            <label for="an-context">Context (optional)<span class="hint">Country, business unit, or what you want to focus on</span>
+              <input type="text" id="an-context" placeholder="e.g. its rental offer in France">
+            </label>
+            <div class="an-predict">
+              <p class="lbl">Your prediction: which directions does it use? <span class="hint">(optional, select a few)</span></p>
+              <div class="pick" id="an-pick"></div>
+            </div>
+            <div class="row">
+              <button class="btn" type="submit" id="an-go">Analyse</button>
+              <button class="btn ghost small" type="button" id="an-stop" hidden>Stop</button>
+              <span class="note" id="an-status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+        <div id="an-result"></div>
+      </section>
+
+      <!-- WORKSHOP -->
+      <section class="view" id="view-work">
+        <div class="casebar">
+          <div class="meta">
+            <label for="case-name">Industry or company you are reinventing
+              <input type="text" id="case-name" data-bind="caseName">
+            </label>
+            <p class="note" id="case-chip">This is an example case. Edit it, or start your own.</p>
+          </div>
+          <div class="row">
+            <button class="btn ghost small" id="btn-new">Start my own case</button>
+            <button class="btn ghost small" id="btn-example">Load example</button>
+          </div>
+        </div>
+
+        <div class="steps" role="tablist" aria-label="Workshop steps">
+          <button role="tab" data-step="1" aria-selected="true"><span class="s">1</span>Map the dominant model</button>
+          <button role="tab" data-step="2" aria-selected="false"><span class="s">2</span>Surface orthodoxies</button>
+          <button role="tab" data-step="3" aria-selected="false"><span class="s">3</span>Explore the 14 directions</button>
+          <button role="tab" data-step="4" aria-selected="false"><span class="s">4</span>Select and test</button>
+        </div>
+
+        <div class="panel" data-panel="1">
+          <p class="intro">Describe how most players in this industry make money today. Stay factual: this is the model you will challenge, not your idea yet.</p>
+          <div class="fields">
+            <div class="col vp"><h3>Value proposition</h3>
+              <label for="vp-who">Who are the customers?<textarea id="vp-who" data-bind="vp.who"></textarea></label>
+              <label for="vp-what">What is offered?<textarea id="vp-what" data-bind="vp.what"></textarea></label>
+              <label for="vp-price">At what price, paid how?<textarea id="vp-price" data-bind="vp.price"></textarea></label>
+            </div>
+            <div class="col va"><h3>Value architecture</h3>
+              <label for="va-chain">Key steps of the value chain<textarea id="va-chain" data-bind="va.chain"></textarea></label>
+              <label for="va-res">Resources and competencies<textarea id="va-res" data-bind="va.resources"></textarea></label>
+              <label for="va-part">Partners and ecosystem<textarea id="va-part" data-bind="va.partners"></textarea></label>
+            </div>
+            <div class="col pe"><h3>Contributions</h3>
+              <label for="pe-rev">Revenue model<textarea id="pe-rev" data-bind="pe.revenue"></textarea></label>
+              <label for="pe-cost">Main costs<textarea id="pe-cost" data-bind="pe.costs"></textarea></label>
+              <label for="pe-cap">Capital employed<textarea id="pe-cap" data-bind="pe.capital"></textarea></label>
+              <label for="pe-imp">Impact on people and planet<textarea id="pe-imp" data-bind="pe.impact"></textarea></label>
+            </div>
+          </div>
+          <div class="row"><button class="btn" data-review="1">Ask the coach to review step 1</button></div>
+        </div>
+
+        <div class="panel" data-panel="2" hidden>
+          <p class="intro">An orthodoxy is a belief everyone in the industry shares without questioning it: "customers must…", "we always…", "you can't make money unless…". Write each one as a rule. Look at all three pillars. Challenging industry beliefs is one of the three prerequisites of the approach.</p>
+          <div class="list" id="orth-list"></div>
+          <div class="row">
+            <button class="btn ghost small" id="btn-add-orth">Add an orthodoxy</button>
+            <button class="btn" data-review="2">Ask the coach to review step 2</button>
+          </div>
+        </div>
+
+        <div class="panel" data-panel="3" hidden>
+          <p class="intro">For each idea, pick the direction that inspired it and the orthodoxy it breaks. Then state what happens to the contributions: revenue, costs, capital employed, people and planet. Try ideas from both the value proposition and the value architecture.</p>
+          <div class="list" id="idea-list"></div>
+          <div class="row">
+            <button class="btn ghost small" id="btn-add-idea">Add an idea</button>
+            <button class="btn" data-review="3">Ask the coach to review step 3</button>
+          </div>
+        </div>
+
+        <div class="panel" data-panel="4" hidden>
+          <p class="intro">Rate each idea on attractiveness (value for customers and profit potential) and feasibility (capabilities, cost, time). Ideas in the top-right corner deserve a test.</p>
+          <div class="matrix-wrap"><div class="matrix" id="matrix">
+            <span class="ax x">Feasibility →</span><span class="ax y">Attractiveness →</span><span class="q1">Test first</span>
+          </div></div>
+          <div class="legend"><span><i class="vp"></i>Value proposition idea</span><span><i class="va"></i>Value architecture idea</span></div>
+          <div class="fields" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+            <label for="t-idea">Idea you will test first
+              <select id="t-idea" data-bind="test.idea"></select></label>
+            <label for="t-assume">Riskiest assumption<span class="hint">What must be true for this to work?</span>
+              <textarea id="t-assume" data-bind="test.assumption"></textarea></label>
+            <label for="t-exp">Cheapest experiment<span class="hint">How could you test it in two weeks with little money?</span>
+              <textarea id="t-exp" data-bind="test.experiment"></textarea></label>
+            <label for="t-metric">Success signal<span class="hint">Which number tells you to go on?</span>
+              <textarea id="t-metric" data-bind="test.metric"></textarea></label>
+          </div>
+          <div class="row"><button class="btn" data-review="4">Ask the coach to stress-test my plan</button></div>
+        </div>
+
+        <div class="panel" data-panel="4" hidden>
+          <h3>Appendix: where each idea came from</h3>
+          <p class="intro">Your course asks you to state which ideas were your own and which came from an AI tool. This text is built from the Origin field of each idea in step 3. Paste it into the appendix of your presentation.</p>
+          <label for="appendix" class="sr">Appendix text</label>
+          <textarea id="appendix" readonly style="min-height:160px"></textarea>
+          <div class="row"><button class="btn ghost small" id="btn-copy">Copy appendix</button><span class="note" id="copy-msg" aria-live="polite"></span></div>
+        </div>
+      </section>
+
+      <!-- PRACTICE -->
+      <section class="view" id="view-quiz" hidden>
+        <div class="row" style="justify-content:space-between">
+          <div class="block" style="gap:6px"><h2>Spot the direction</h2><p class="note">Real business model innovations. Which of the 14 directions explains each one best?</p></div>
+          <span class="score" id="score">0 / 0</span>
+        </div>
+        <div class="qcard" id="qcard"></div>
+      </section>
+    </main>
+
+    <aside class="coach" aria-label="AI coach">
+      <div class="head">
+        <h2>Your Socratic coach</h2>
+        <p>Asks questions, points to directions and flags weak spots. It will not write your case for you.</p>
+      </div>
+      <div class="log" id="log" aria-live="polite">
+        <div class="msg ai"><p>Hello! I can explain any part of Odyssey 3.14, review each workshop step, or quiz you. Start by mapping the dominant model in step 1, then press <b>Ask the coach to review</b>.</p></div>
+      </div>
+      <div class="compose" id="compose">
+        <div class="quick" id="quick">
+          <button data-q="What is the difference between an orthodoxy and a simple industry feature?">Orthodoxy vs. feature?</button>
+          <button data-q="Which 2 directions look most promising for my case, and why? Ask me questions rather than giving me the answer.">Where should I look?</button>
+          <button data-q="Quiz me with one short question on the 14 directions.">Quiz me</button>
+        </div>
+        <label for="ask" class="sr">Ask the coach</label>
+        <textarea id="ask" placeholder="e.g. Is ‘introduce other stakeholders’ relevant for driving schools?"></textarea>
+        <div class="row" style="justify-content:space-between">
+          <button class="btn ghost small" id="btn-clear">Clear chat</button>
+          <div class="row"><button class="btn ghost small" id="btn-stop" hidden>Stop</button><button class="btn" id="btn-send">Send</button></div>
+        </div>
+      </div>
+      <div class="offline" id="offline" hidden>The AI coach runs when this page is opened on claude.ai. Learn, Workshop and Practice work here too.</div>
+    </aside>
+  </div>
+  <footer class="foot">A student project built for the Odyssey 3.14 course at HEC Paris. Not an official HEC Paris tool.</footer>
+</div>
+
+<script>
+const DIRECTIONS = [
+  { n: 1, p: "vp", t: "Reduce customer overall costs", viz: "costs",
+    qs: ["Can you simplify your offering to reduce costs and lower the price for customers?", "Can you offer part of your product or service for free to attract more customers?", "Who might be interested in advertising to your customers?", "Can you reduce peripheral costs your customers face?"],
+    ex: [["Embrace", "A low-cost warmer for premature babies, at a fraction of the cost of a standard incubator."], ["leboncoin", "Free classified ads: buyers and sellers trade second-hand goods without an intermediary."], ["Ecosia", "A free search engine financed by ads, whose profits plant trees."]] },
+  { n: 2, p: "vp", t: "Reduce customer hassles", viz: "hassle",
+    qs: ["What products or services do customers use to complement yours?", "What constraints, complications or pain points do your customers face when using your products or services?", "How can you minimise these hassles?"],
+    ex: [["Zipcar", "Cars by the hour, with fuel, insurance and maintenance included: no hassle of ownership."], ["Graze", "Personalised healthy snacks, delivered in boxes that fit through the letterbox."]] },
+  { n: 3, p: "vp", t: "Find non-customers", viz: "pyramid",
+    qs: ["What prevents potential customers from choosing your offer?", "If they don't buy from you, what do they do instead?", "Which aspects of your offer consistently frustrate your customers?", "How can you redesign your offer to remove these barriers?"],
+    ex: [["Hotel minibars", "Most guests are conscious non-customers: they find the minibar overpriced and shop outside."], ["Castalie", "Filtered still and sparkling water dispensers for restaurants and offices, instead of bottled water."], ["M-Pesa", "Mobile money for people who had a phone but no bank account."]] },
+  { n: 4, p: "vp", t: "Add more functionality or more emotion", viz: "scale",
+    qs: ["Is your product or service essentially functional or emotional?", "How could you add a positive emotional component to it?", "Alternatively, how can you go back to its basic functions by removing its emotional content?"],
+    ex: [["The Ordinary", "Strips the luxury codes from skincare: clinical formulas, plain packaging, low prices."], ["Cemex Patrimonio Hoy", "Adds savings plans, materials and technical advice for low-income families building their homes."], ["Michelin Fleet Solutions", "Adds maintenance and advice to tyres, giving fleet managers peace of mind."]] },
+  { n: 5, p: "vp", t: "Explore other segments or industries", viz: "map",
+    qs: ["What are the different segments within your industry?", "What rules, codes or features from other segments could you integrate into your value proposition?", "What other industries could inspire you to create something new?"],
+    ex: [["Mama Shelter", "Three-star prices with the design, restaurant and atmosphere of upscale hotels."], ["OffGridBox", "A container that produces clean water and solar energy for off-grid communities."]] },
+  { n: 6, p: "vp", t: "Introduce other stakeholders", viz: "platform",
+    qs: ["Can you identify other parties that you can beneficially connect with your own customers?", "For whom could you act as an intermediary?", "Could your assets be borne by a third party (such as the owners of the rooms offered by Airbnb or the cars on BlaBlaCar)?"],
+    ex: [["JCDecaux", "Gives cities bus shelters and street furniture, financed by advertisers."], ["Too Good To Go", "Connects shops that have unsold food with consumers who want it at a low price."], ["Pinduoduo, BlaBlaCar", "Platforms that rely on network effects, outsourced assets and flexible pricing."]] },
+  { n: 7, p: "vp", t: "Modify the revenue stream", viz: "revenue",
+    qs: ["Could you bill your customers differently?", "What third parties could be interested in financing all or part of your offer in exchange for some compensation?", "Does your offer allow your customers to save costs or generate additional revenue?"],
+    ex: [["Anticafé", "Customers pay for time spent, not for what they consume."], ["Free2Move, Vinted", "Usage-based payment and freemium models."], ["Schneider Electric", "Paid from a share of the energy savings it creates for its clients."]] },
+  { n: 8, p: "va", t: "Introduce a technology", viz: null,
+    qs: ["Do your competitors use a technology that you could integrate?", "What are the existing technologies in other sectors that you could use?"],
+    ex: [["Perfect Day", "Uses precision fermentation to make real dairy proteins without cows."]] },
+  { n: 9, p: "va", t: "Modify one or several steps in the value chain", viz: "chain9",
+    qs: ["What are the activities in your value chain?", "Can you redesign or rethink how each activity is executed?"],
+    ex: [["Fairphone", "A modular, repairable phone built from responsibly sourced materials."], ["Nickel", "A bank account opened in minutes at the local tobacconist, with no bank branch."]] },
+  { n: 10, p: "va", t: "Eliminate or add one or more steps to the value chain", viz: "chain10",
+    qs: ["In which way is each value chain activity useful? Can you eliminate it? What will be the impact on cost, and therefore on price?", "Could you add a step to the value chain? What would the result be? Will it bring value to the customer?"],
+    ex: [["kcuts", "Ten-minute haircuts with no shampoo, at a low price."], ["Desso", "A carpet maker that added a step: taking back used carpets to recycle them."]] },
+  { n: 11, p: "va", t: "Identify new inputs", viz: "inputs",
+    qs: ["How can you broaden your input base (financial, expertise, tangible, intangible)?", "Conversely, how can you reduce the number of inputs?", "How can you use more sustainable inputs?"],
+    ex: [["Turo", "Private owners rent out their own cars."], ["Topcoder, eYeka, Wazoku, Arcbazar", "Crowds of coders, creatives, innovators and architects."], ["Kiva, LITA.co", "Crowds of individuals who lend or invest."]] },
+  { n: 12, p: "va", t: "Associate with competitors or clients or suppliers", viz: "coop",
+    qs: ["Who are your competitors? What are their strengths and strategic resources?", "How do their advantages complement your own?", "How can you combine strengths and mitigate weaknesses?", "Can you rethink your relationships with suppliers and customers?"],
+    ex: [["Ionity", "Rival carmakers jointly built a fast-charging network across Europe."], ["C'est qui le patron?!", "Consumers vote on product specifications and the fair price paid to farmers."]] },
+  { n: 13, p: "va", t: "Identify complementors", viz: "puzzle",
+    qs: ["Which offers are used by your customers before, during and after your own offer?", "Can you integrate these offers into your value proposition? How would it interest your customers?", "What would be the interest for the company providing this complementary offer?"],
+    ex: [["Barnes & Noble", "Cafés inside bookstores."], ["ACRE Africa", "Crop micro-insurance for farmers, sold with seeds and paid through mobile money."], ["Michelin & Euromaster", "Fleet Solutions relies on Euromaster's network of tyre centres."]] },
+  { n: 14, p: "va", t: "Leverage strategic resources", viz: "resources",
+    qs: ["What are your strategic resources and competencies?", "Which resources are you currently underusing? Could you capitalise on them in a new way?", "Do you have any expertise that other companies might find valuable?"],
+    ex: [["Tide Dry Cleaners (P&G)", "The Tide brand used to franchise dry-cleaning stores."], ["Rooftops", "Unused rooftops turned into urban farms, solar plants, bars or new flats."]] }
+];
+const dirName = n => { const d = DIRECTIONS.find(d => d.n == n); return d ? `${d.n}. ${d.t}` : "—"; };
+
+const VIZ = {
+  costs: `<svg viewBox="0 0 320 190" role="img" aria-label="Cost of a standard incubator versus Embrace">
+    <line class="ax" x1="44" y1="160" x2="300" y2="160"/><line class="ax" x1="44" y1="16" x2="44" y2="160"/>
+    <text x="24" y="92" transform="rotate(-90 24 92)" text-anchor="middle">Cost</text>
+    <rect class="soft" x="80" y="28" width="70" height="132"/><rect class="solid" x="196" y="112" width="70" height="48"/>
+    <line class="dash" x1="231" y1="30" x2="231" y2="100"/><path class="solid" d="M225 98 L231 108 L237 98 Z"/>
+    <text x="115" y="178" text-anchor="middle">Standard incubator</text><text x="231" y="178" text-anchor="middle">Embrace</text></svg>
+    <p class="cap">Embrace: same function, a fraction of the cost. Illustrative, not to scale.</p>`,
+  hassle: `<div class="ba"><span class="was">Repetitive, unhealthy snacks</span><span class="arrow">→</span><span>Personalised snack delivery</span>
+    <span class="was">Delivery inconvenience</span><span class="arrow">→</span><span>Boxes that fit through the letterbox</span></div>
+    <div class="formula small">ROCE ↑ = (Revenue − Costs) ÷ Capital employed</div>
+    <p class="cap">Graze: removing hassles, with software-driven personalisation, also improves the return on capital employed.</p>`,
+  pyramid: `<svg viewBox="0 0 320 180" role="img" aria-label="Economic pyramid: about 1 billion in mature markets, 3 billion in emerging markets, 4 billion at the base">
+    <path class="soft" d="M160 6 L196 54 L124 54 Z"/><path class="soft2" d="M120 60 L200 60 L240 112 L80 112 Z"/><path class="solid" d="M76 118 L244 118 L290 176 L30 176 Z"/>
+    <text x="160" y="46" text-anchor="middle">≈ 1B</text><text x="160" y="84" text-anchor="middle" class="b">≈ 3B</text><text x="160" y="102" text-anchor="middle">Emerging markets</text>
+    <text x="160" y="146" text-anchor="middle" class="inv b">≈ 4 billion people</text><text x="160" y="164" text-anchor="middle" class="inv">Base of the economic pyramid</text>
+    <text x="206" y="34">Mature markets</text></svg>
+    <p class="cap">M-Pesa served people with a mobile phone but no bank account.</p>`,
+  scale: `<div class="scale"><span class="end">Strip back to basic functions</span><span class="mid">Standard offer</span><span class="end r">Add functionality or emotion</span></div>
+    <div class="scale-ex"><p><b>← The Ordinary</b> removes the emotional luxury codes of cosmetics.</p><p class="r"><b>Cemex, Michelin →</b> add services such as financing, advice and maintenance around a commodity.</p></div>`,
+  map: `<svg viewBox="0 0 320 200" role="img" aria-label="Car makers positioned by price and perceived value">
+    <line class="ax" x1="40" y1="170" x2="306" y2="170"/><line class="ax" x1="40" y1="10" x2="40" y2="170"/>
+    <line class="dash thin" x1="40" y1="88" x2="306" y2="88"/><line class="dash thin" x1="190" y1="10" x2="190" y2="170"/>
+    <text x="300" y="188" text-anchor="end">Price →</text><text x="20" y="90" transform="rotate(-90 20 90)" text-anchor="middle">Perceived value →</text>
+    <rect class="solid" x="70" y="122" width="12" height="12"/><text x="88" y="132">Tata</text>
+    <rect class="solid" x="146" y="90" width="12" height="12"/><text x="120" y="116">Renault–Nissan–Mitsubishi</text>
+    <rect class="solid" x="206" y="62" width="12" height="12"/><text x="224" y="72">Volkswagen</text>
+    <rect class="solid" x="268" y="24" width="12" height="12"/><text x="262" y="20" text-anchor="end">Tesla</text></svg>
+    <p class="cap">Map the segments of your industry, then borrow codes from another segment. Positions are illustrative.</p>`,
+  platform: `<div class="plat"><span>Businesses</span><span class="arrow">⇄</span><span class="solidbox">Platform</span><span class="arrow">⇄</span><span>Consumers</span></div>
+    <div class="trio"><span><b>1</b> Network effects</span><span><b>2</b> Outsourced assets</span><span><b>3</b> Flexible pricing</span></div>
+    <p class="cap">Too Good To Go, Pinduoduo and BlaBlaCar connect two groups of stakeholders.</p>`,
+  revenue: `<ol class="ways"><li><b>Get the user to pay in a different way</b><span>Subscription or fixed fee, usage-based payment, freemium</span></li>
+    <li><b>Make a third party pay</b><span>Advertisers finance Ecosia's free search</span></li>
+    <li><b>Pay yourself from your customer's savings</b><span>Schneider Electric takes a share of the energy saved</span></li></ol>`,
+  chain9: `<div class="chain"><span>Sourcing</span><i>→</i><span class="on">Design</span><i>→</i><span class="on">Production</span><i>→</i><span>Sales</span><i>→</i><span class="on">Repair</span></div>
+    <p class="cap">Fairphone rethinks how several steps are done: modular design, responsible sourcing, repair by the user.</p>`,
+  chain10: `<div class="chain"><span>Arrive</span><i>→</i><span class="off">Shampoo</span><i>→</i><span>Cut</span><i>→</i><span>Pay</span></div>
+    <p class="cap">kcuts eliminates a step to cut time and price.</p>
+    <div class="chain"><span>Produce</span><i>→</i><span>Sell</span><i>→</i><span>Use</span><i>→</i><span class="add">Take back and recycle</span></div>
+    <p class="cap">Desso adds a step that brings value to customers and the planet.</p>`,
+  inputs: `<div class="quad"><span><b>Financial</b>Kiva, LITA.co</span><span><b>Expertise</b>Topcoder, eYeka, Wazoku, Arcbazar</span><span><b>Tangible</b>Turo: owners' cars</span><span><b>Intangible</b>Ideas, data, reputation</span></div>
+    <p class="cap">Broaden, reduce, or make your inputs more sustainable.</p>`,
+  coop: `<div class="hub"><span class="t">Competitors<small>Ionity</small></span><span class="l">Suppliers</span><span class="c solidbox">Your firm</span><span class="r">Clients<small>C'est qui le patron?!</small></span></div>
+    <p class="cap">Co-opetition: combine strengths with competitors, suppliers or clients.</p>`,
+  puzzle: `<div class="trio"><span class="solidbox"><b style="color:inherit">Your offer</b></span><span><b>+ Complementor's offer</b> Used before, during or after yours</span><span><b>= More value</b> For customers and for both firms</span></div>
+    <p class="cap">Look at what customers use before, during and after your offer.</p>`,
+  resources: `<div class="trio"><span><b>Tangible</b> Buildings, rooftops, networks</span><span><b>Intangible</b> Brands, patents, data</span><span><b>Competencies</b> Know-how others value</span></div>
+    <p class="cap">P&amp;G turned the Tide brand into a dry-cleaning franchise.</p>`
+};
+
+const QUIZ = [
+  { c: "A start-up designs a low-cost warming pouch for premature babies, costing a fraction of a hospital incubator.", a: 1, x: [3, 4], why: "The customer's overall cost falls dramatically for the same function. This is Embrace." },
+  { c: "Members book a car by the hour on an app and unlock it with a card. Fuel, insurance and maintenance are included.", a: 2, x: [7, 1, 6], why: "Customers get a car without the hassles of owning, insuring and maintaining one. This is Zipcar." },
+  { c: "A telecom operator lets people who have a mobile phone but no bank account send and receive money by text message.", a: 3, x: [8, 5], why: "Its customers were the non-customers of banks. This is M-Pesa." },
+  { c: "A skincare brand sells clinical formulas in plain packaging at low prices, with no luxury advertising.", a: 4, x: [1], why: "It removes the emotional content to go back to basic functions. This is The Ordinary." },
+  { c: "A hotel chain charges three-star prices but borrows the design, restaurant and party atmosphere of upscale hotels.", a: 5, x: [4], why: "It imports codes from another segment of the hotel industry. This is Mama Shelter." },
+  { c: "A company installs and maintains bus shelters for cities at no cost, and earns money by selling the advertising space on them.", a: 6, x: [7, 1], why: "Advertisers are brought in as another stakeholder who pays for what the city uses. This is JCDecaux." },
+  { c: "An energy-management firm is paid by its clients out of the energy savings its solutions generate.", a: 7, x: [1, 6], why: "The firm pays itself from its customers' savings, one of the three ways to modify the revenue stream. This is Schneider Electric." },
+  { c: "A start-up produces real dairy proteins by fermentation, without cows.", a: 8, x: [11, 5], why: "A new technology changes how the product is made. This is Perfect Day." },
+  { c: "A bank account you can open in a few minutes at the local tobacconist, with no bank branch.", a: 9, x: [10, 2, 3], why: "Account opening and distribution are done in a completely different way. This is Nickel." },
+  { c: "A hair salon offers ten-minute haircuts with no shampoo, at a low price.", a: 10, x: [9, 2, 1], why: "A step of the value chain, the wash, is eliminated. This is kcuts." },
+  { c: "A platform lets private owners rent out their own cars to travellers.", a: 11, x: [6, 12, 13], why: "The cars of private owners become a new input. This is Turo." },
+  { c: "Rival carmakers jointly build a fast-charging network along European highways.", a: 12, x: [13, 14], why: "Competitors associate to combine their strengths: co-opetition. This is Ionity." },
+  { c: "A bookstore chain opens cafés inside its stores.", a: 13, x: [4, 12], why: "Coffee is a complementary offer that makes customers stay longer. This is Barnes & Noble." },
+  { c: "A detergent giant franchises dry-cleaning stores under its famous laundry brand.", a: 14, x: [5], why: "A strategic resource, the brand, is used in a new way. This is Tide Dry Cleaners by P&G." }
+];
+
+const EXAMPLE = {
+  example: true,
+  caseName: "Driving schools in France",
+  vp: { who: "Young people aged 17–20 getting their first licence, often paid for by parents.", what: "Highway-code classes in a local agency, about 20+ hours of driving lessons with an instructor, booking of the state exam.", price: "Package of roughly €1,500–2,000 paid upfront; extra hours around €50 each." },
+  va: { chain: "Storefront agency → in-class code sessions → lessons in school-owned dual-control cars → exam slots allocated by the state.", resources: "Licensed salaried instructors, fleet of cars, physical agency, local reputation.", partners: "Car leasing firms, insurers, state exam centres." },
+  pe: { revenue: "Package sales plus extra hours; code classes carry high margins.", costs: "Instructor salaries, premises, car fleet, admin staff.", capital: "Cars and premises.", impact: "Local jobs for instructors; CO₂ emissions from lesson cars." },
+  orthodoxies: ["Students must come to the agency to learn the highway code.", "Instructors are salaried employees of the school.", "Customers pay a large package upfront."],
+  ideas: [{ src: "me", dir: 11, orth: 1, text: "Online platform of independent instructors who use their own dual-control cars; students book single hours on an app.", rev: "same", cost: "down", cap: "down", planet: "same", attr: 5, feas: 4 }],
+  test: { idea: "0", assumption: "", experiment: "", metric: "" }
+};
+const BLANK = () => ({ example: false, caseName: "", vp: { who: "", what: "", price: "" }, va: { chain: "", resources: "", partners: "" }, pe: { revenue: "", costs: "", capital: "", impact: "" }, orthodoxies: ["", ""], ideas: [], test: { idea: "", assumption: "", experiment: "", metric: "" } });
+
+const KEY = "odyssey-coach-v2";
+let state;
+try { state = JSON.parse(localStorage.getItem(KEY)); } catch (e) { state = null; }
+if (!state || !state.vp) state = structuredClone(EXAMPLE);
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const getPath = (o, p) => p.split(".").reduce((a, k) => a?.[k], o);
+const setPath = (o, p, v) => { const ks = p.split("."); const last = ks.pop(); ks.reduce((a, k) => a[k], o)[last] = v; };
+
+/* ---------- Tabs ---------- */
+function showView(v) {
+  $$("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.view === v));
+  ["learn", "an", "work", "quiz"].forEach(x => $("#view-" + x).hidden = x !== v);
+  try { localStorage.setItem(KEY + "-view", v); } catch (e) {}
+}
+$$("nav.tabs button").forEach(b => b.onclick = () => showView(b.dataset.view));
+let step = 1;
+function showStep(s) {
+  step = s;
+  $$(".steps button").forEach(b => b.setAttribute("aria-selected", b.dataset.step == s));
+  $$("[data-panel]").forEach(p => p.hidden = p.dataset.panel != s);
+  if (s == 4) renderTest();
+}
+$$(".steps button").forEach(b => b.onclick = () => showStep(+b.dataset.step));
+
+/* ---------- Learn ---------- */
+
+const gear = (cx, cy, r) => `<circle cx="${cx}" cy="${cy}" r="${r}"/>` + Array.from({ length: 8 }, (_, i) => {
+  const a = i * Math.PI / 4, c = Math.cos(a), si = Math.sin(a);
+  return `<path d="M${(cx + c * r).toFixed(2)} ${(cy + si * r).toFixed(2)}L${(cx + c * (r + 2)).toFixed(2)} ${(cy + si * (r + 2)).toFixed(2)}"/>`;
+}).join("");
+const ICONS = {
+  vp: '<path d="M9 3h6v5H9z"/><path d="M12 3v5"/><path d="M3 15h3l2 1.5h5a1.5 1.5 0 0 1 0 3H9.5"/><path d="M13 19.5l5-3a1.6 1.6 0 0 1 2 2.4L14 22H8l-2-1.5H3"/>',
+  va: gear(9, 9.5, 3.4) + gear(16.5, 16.5, 2.4),
+  pe: '<circle cx="8" cy="16" r="4.5"/><path d="M8 13.8v4.4"/><path d="M16.5 21v-8.5"/><path d="M16.5 12.5c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M16.5 15c0-2.5-1.8-4-4-4 0 2.5 1.8 4 4 4z"/>',
+  1: '<path d="M3 12l8-8h7v7l-8 8z"/><circle cx="14.5" cy="7.5" r="1.2"/><path d="M20 14v7M17.5 18.5L20 21l2.5-2.5"/>',
+  2: '<path d="M3 7c2.5-4 4.5 4 7 0s4.5 4 7 0 2.5-1 3-1"/><path d="M3 17h16M16 14l3 3-3 3"/>',
+  3: '<circle class="dsh" cx="12" cy="7" r="3.5"/><path class="dsh" d="M4.5 21c0-4.2 3.3-6.5 7.5-6.5s7.5 2.3 7.5 6.5"/>',
+  4: '<path d="M12 20.5s-7.5-4.6-7.5-10.4A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.5 2.5c0 5.8-7.5 10.4-7.5 10.4z"/><path d="M12 10.5v5M9.5 13h5"/>',
+  5: '<circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/>',
+  6: '<circle cx="12" cy="12.5" r="2.5"/><circle cx="12" cy="4" r="2"/><circle cx="4.5" cy="19" r="2"/><circle cx="19.5" cy="19" r="2"/><path d="M12 6v4M10.2 14.3l-4.2 3.3M13.8 14.3l4.2 3.3"/>',
+  7: '<circle cx="12" cy="12" r="3.5"/><path d="M12 10.5v3"/><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M18 2.5v4h-4"/>',
+  8: '<rect x="7" y="7" width="10" height="10"/><rect class="fl" x="10" y="10" width="4" height="4"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>',
+  9: '<path d="M1.5 8h5l3 4-3 4h-5l3-4z"/><path class="fl" d="M8.5 8h5l3 4-3 4h-5l3-4z"/><path d="M15.5 8h4l3 4-3 4h-4l3-4z"/>',
+  10: '<path d="M1.5 8h5l3 4-3 4h-5l3-4z"/><path d="M10 9.5l3 5M13 9.5l-3 5"/><path class="dsh" d="M14.5 8h5l3 4-3 4h-5l3-4z"/>',
+  11: '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/>',
+  12: '<path d="M9.5 14.5l5-5"/><path d="M8.5 11.5l-2 2a3.2 3.2 0 0 0 4.5 4.5l2-2"/><path d="M15.5 12.5l2-2A3.2 3.2 0 0 0 13 6l-2 2"/>',
+  13: '<path d="M4 8h4.5a2.2 2.2 0 1 1 4 0H17v4.5a2.2 2.2 0 1 1 0 4V21H4z"/>',
+  14: '<path d="M6.5 4h11l4 5L12 21 2.5 9z"/><path d="M2.5 9h19M9 4l3 5 3-5M9 9l3 12 3-12"/>'
+};
+const icon = (k, cls = "") => `<span class="ic ${cls}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg></span>`;
+
+// header art: a ring of dots echoing the "odyssey" journey
+(() => {
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  let dots = "";
+  for (let i = 30; i < 190; i++) {
+    const a = i * 2.39996, r = 4 * Math.sqrt(i);
+    const x = 70 + r * Math.cos(a), y = 70 + r * Math.sin(a), k = rnd();
+    dots += `<circle class="${k < .35 ? "d1" : k < .7 ? "d2" : "d3"}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(0.8 + rnd() * 2.6).toFixed(2)}"/>`;
+  }
+  $("#art").innerHTML = `<svg viewBox="0 0 140 140">${dots}</svg>`;
+})();
+// pillar pictograms
+$$(".pillar").forEach(el => el.insertAdjacentHTML("afterbegin", icon(el.dataset.pillar, "pic")));
+const PILLARS = {
+  vp: { n: 1, t: "Value proposition", sum: "What you offer, to whom, and at what price. It drives the revenue side of the model.",
+    parts: [["Customers", "Who buys today, and who are the non-customers?"], ["Offer", "The product, service or experience, and the need it meets"], ["Price", "How much customers pay, how and when"]],
+    qs: ["Who are your customers, and who are your non-customers?", "What exactly do you offer, and which need or job does it fulfil?", "How much do customers pay, how and when? Who else could pay?"],
+    dirs: [1, 2, 3, 4, 5, 6, 7], dirNote: "Directions 1 to 7 rethink the value proposition." },
+  va: { n: 2, t: "Value architecture", sum: "How you create and deliver the value proposition. It drives costs and capital employed.",
+    parts: [["Value chain", "The activities from inputs to the customer, and who performs each one"], ["Resources and competencies", "What the firm owns or masters that matters strategically"], ["Partners", "Suppliers, complementors and the wider ecosystem"]],
+    qs: ["Which activities make up your value chain, and which do you perform yourself?", "Which resources and competencies are strategic, and which are underused?", "Which partners, suppliers or complementors do you depend on?"],
+    dirs: [8, 9, 10, 11, 12, 13, 14], dirNote: "Directions 8 to 14 rethink the value architecture." },
+  pe: { n: 3, t: "Contributions", sum: "What the model gives back: financial results for the firm, and its impact on people and the planet. It results from the two other pillars.",
+    parts: [["Financial", "Revenue, costs, capital employed and the return they produce"], ["Social", "Customers, employees, suppliers and communities"], ["Environmental", "Resources used, emissions, waste and their reduction"]],
+    qs: ["Does the model generate more revenue than it costs, and how much capital does it tie up?", "What does it contribute to people: customers, employees, communities?", "What is its impact on the planet, and could a new model reduce it?"],
+    dirs: [], dirNote: "Every one of the 14 directions changes the contributions: check them for each idea in the workshop." }
+};
+let pillar = "vp";
+function showPillar(k) {
+  pillar = k;
+  const P = PILLARS[k];
+  $("#pdetail").dataset.p = k;
+  $$(".pillar").forEach(el => el.setAttribute("aria-pressed", el.dataset.pillar === k));
+  $$(".wheel path").forEach(el => el.classList.toggle("on", el.dataset.pillar === k));
+  $(".wheel").classList.add("picked");
+  const viz = k === "pe"
+    ? `<div class="flow"><span>Revenue<small>from the value proposition</small></span><i>−</i><span>Costs<small>from the value architecture</small></span>
+        <span class="full">÷ Capital employed<small>from the value architecture</small></span><span class="full solidbox">= ROCE, plus social and environmental contributions</span></div>`
+    : `<div class="quad" style="grid-template-columns:minmax(0,1fr)">${P.parts.map(([a, b]) => `<span><b>${a}</b>${b}</span>`).join("")}</div>`;
+  $("#pdetail").innerHTML = `<div class="head"><div class="hd"><span class="bigic"><svg viewBox="0 0 24 24" class="ic-raw">${ICONS[k]}</svg></span><div><h3>${P.n}. ${P.t}</h3><p>${P.sum}</p></div></div>
+    <button class="btn small" id="btn-map">Map this pillar in my workshop</button></div>
+    <div class="detail-grid"><div class="viz">${viz}</div>
+    <div class="qs-wrap"><h4>Questions to ask</h4><ul class="qs">${P.qs.map(q => `<li>${esc(q)}</li>`).join("")}</ul>
+    ${k === "pe" ? `<ul class="qs">${P.parts.map(([a, b]) => `<li><b>${a}:</b> ${b}</li>`).join("")}</ul>` : ""}</div></div>
+    <div class="exs"><h4>Directions that act on it</h4><p class="note">${P.dirNote}</p>
+    ${P.dirs.length ? `<div class="chips">${P.dirs.map(n => `<button class="${DIRECTIONS.find(d => d.n === n).p}" data-go="${n}"><span class="num">${n}</span>${esc(DIRECTIONS.find(d => d.n === n).t)}</button>`).join("")}</div>` : ""}</div>`;
+  $$("#pdetail [data-go]").forEach(b => b.onclick = () => { showDir(+b.dataset.go); $("#board").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  $("#btn-map").onclick = () => { showView("work"); showStep(1); $({ vp: "#vp-who", va: "#va-chain", pe: "#pe-rev" }[k]).focus(); };
+}
+$$("[data-pillar]").forEach(el => {
+  el.addEventListener("click", () => showPillar(el.dataset.pillar));
+  if (el.getAttribute("role") === "button") el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showPillar(el.dataset.pillar); } });
+});
+let current = 1;
+["vp", "va"].forEach(p => $(`#board .side.${p}`).insertAdjacentHTML("beforeend", DIRECTIONS.filter(d => d.p === p).map(d =>
+  `<button data-dir="${d.n}" aria-pressed="false"><span class="n">${d.n}</span>${icon(d.n)}<span class="t">${esc(d.t)}</span></button>`).join("")));
+function showDir(n) {
+  current = n;
+  const d = DIRECTIONS.find(x => x.n === n);
+  $("#detail").dataset.p = d.p;
+  $$("#board button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.dir === n));
+  const qs = `<div class="qs-wrap"><h4>Questions to ask</h4><ul class="qs">${d.qs.map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>`;
+  $("#detail").innerHTML = `<div class="head"><div class="hd"><span class="bigic"><svg viewBox="0 0 24 24" class="ic-raw">${ICONS[d.n]}</svg></span><div><h3>${d.n}. ${esc(d.t)}</h3><p>${d.p === "vp" ? "Rethinks the value proposition" : "Rethinks the value architecture"}</p></div></div>
+    <button class="btn small" id="btn-use">Use this direction in my workshop</button></div>
+    <div class="detail-grid${d.viz ? "" : " solo"}">${d.viz ? `<div class="viz">${VIZ[d.viz]}</div>` : ""}${qs}</div>
+    <div class="exs"><h4>Examples from the course</h4><div class="ex-grid">${d.ex.map(([n, t]) => `<div class="ex-card"><b>${esc(n)}</b><span>${esc(t)}</span></div>`).join("")}</div></div>`;
+  $("#btn-use").onclick = () => {
+    state.ideas.push({ src: "me", dir: n, orth: "", text: "", rev: "", cost: "", cap: "", planet: "", attr: 3, feas: 3 });
+    save(); renderIdeas(); showView("work"); showStep(3); $(`#idea-t-${state.ideas.length - 1}`).focus();
+  };
+}
+$$("#board button").forEach(b => b.onclick = () => showDir(+b.dataset.dir));
+showDir(1);
+showPillar("vp");
+
+/* ---------- Workshop ---------- */
+function bindFields() {
+  $$("[data-bind]").forEach(el => {
+    if (el.tagName === "SELECT") return;
+    el.value = getPath(state, el.dataset.bind) ?? "";
+    el.oninput = () => { setPath(state, el.dataset.bind, el.value); save(); };
+  });
+  $("#case-chip").hidden = !state.example;
+}
+function renderOrth() {
+  const box = $("#orth-list");
+  box.innerHTML = state.orthodoxies.map((o, i) => `<div class="orth"><span class="idx">O${i + 1}</span>
+    <input type="text" id="orth-${i}" value="${esc(o)}" placeholder="e.g. Customers must pay upfront" aria-label="Orthodoxy ${i + 1}">
+    <button class="btn ghost small" data-del="${i}" aria-label="Remove orthodoxy ${i + 1}">Remove</button></div>`).join("") || `<p class="empty">No orthodoxies yet.</p>`;
+  box.querySelectorAll("input").forEach((inp, i) => inp.oninput = () => { state.orthodoxies[i] = inp.value; save(); });
+  box.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { state.orthodoxies.splice(+b.dataset.del, 1); save(); renderOrth(); renderIdeas(); });
+}
+$("#btn-add-orth").onclick = () => { state.orthodoxies.push(""); save(); renderOrth(); $(`#orth-${state.orthodoxies.length - 1}`).focus(); };
+
+const SRC = [["me", "My own idea"], ["with", "Developed with the coach"], ["ai", "Suggested by the coach"]];
+const IMPACT = [["up", "Increases"], ["same", "No change"], ["down", "Decreases"], ["", "Not sure"]];
+const PLANET = [["better", "Better"], ["same", "No change"], ["worse", "Worse"], ["", "Not sure"]];
+const sel = (id, opts, val) => `<select id="${id}">${opts.map(([v, l]) => `<option value="${v}"${String(val) === String(v) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
+function renderIdeas() {
+  const box = $("#idea-list");
+  const dirOpts = [["", "Choose a direction…"], ...DIRECTIONS.map(d => [d.n, `${d.n}. ${d.t}`])];
+  const orthOpts = [["", "Which orthodoxy does it break?"], ...state.orthodoxies.map((o, i) => [i, `O${i + 1}. ${o || "(empty)"}`])];
+  const score = [1, 2, 3, 4, 5].map(n => [n, String(n)]);
+  box.innerHTML = state.ideas.map((it, i) => `<div class="idea ${DIRECTIONS.find(d => d.n == it.dir)?.p || ""}" data-i="${i}">
+    <div class="top"><label for="idea-t-${i}">Idea ${i + 1}<textarea id="idea-t-${i}" data-k="text" placeholder="Describe the new business model idea">${esc(it.text)}</textarea></label>
+      <button class="btn ghost small" data-del aria-label="Remove idea ${i + 1}" style="align-self:start">Remove</button></div>
+    <div class="impact">
+      <label for="idea-d-${i}">Direction${sel(`idea-d-${i}`, dirOpts, it.dir)}</label>
+      <label for="idea-o-${i}">Breaks${sel(`idea-o-${i}`, orthOpts, it.orth)}</label>
+      <label for="idea-s-${i}">Origin${sel(`idea-s-${i}`, SRC, it.src || "me")}</label>
+    </div>
+    ${it.dir ? `<p class="dir-hint">Ask yourself: ${esc(DIRECTIONS.find(d => d.n == it.dir).qs.join(" "))}</p>` : ""}
+    <div class="impact">
+      <label for="idea-r-${i}">Revenue${sel(`idea-r-${i}`, IMPACT, it.rev)}</label>
+      <label for="idea-c-${i}">Costs${sel(`idea-c-${i}`, IMPACT, it.cost)}</label>
+      <label for="idea-k-${i}">Capital employed${sel(`idea-k-${i}`, IMPACT, it.cap)}</label>
+      <label for="idea-p-${i}">People and planet${sel(`idea-p-${i}`, PLANET, it.planet)}</label>
+      <label for="idea-a-${i}">Attractiveness (1–5)${sel(`idea-a-${i}`, score, it.attr)}</label>
+      <label for="idea-f-${i}">Feasibility (1–5)${sel(`idea-f-${i}`, score, it.feas)}</label>
+    </div></div>`).join("") || `<p class="empty">No ideas yet. Pick an orthodoxy from step 2 and ask: which direction would break it?</p>`;
+  const map = { p: "planet", s: "src", d: "dir", o: "orth", r: "rev", c: "cost", k: "cap", a: "attr", f: "feas" };
+  box.querySelectorAll(".idea").forEach(card => {
+    const i = +card.dataset.i, it = state.ideas[i];
+    card.querySelector("textarea").oninput = e => { it.text = e.target.value; save(); };
+    card.querySelectorAll("select").forEach(s => s.onchange = () => {
+      const k = map[s.id.split("-")[1]];
+      it[k] = ["attr", "feas"].includes(k) ? +s.value : s.value; save();
+      if (k === "dir") renderIdeas();
+    });
+    card.querySelector("[data-del]").onclick = () => { state.ideas.splice(i, 1); save(); renderIdeas(); };
+  });
+}
+$("#btn-add-idea").onclick = () => { state.ideas.push({ src: "me", dir: "", orth: "", text: "", rev: "", cost: "", cap: "", planet: "", attr: 3, feas: 3 }); save(); renderIdeas(); $(`#idea-t-${state.ideas.length - 1}`).focus(); };
+
+function renderTest() {
+  const m = $("#matrix");
+  m.querySelectorAll(".dot").forEach(d => d.remove());
+  // ideas sharing a cell are nudged apart so every dot stays visible
+  const seen = {};
+  state.ideas.forEach((it, i) => {
+    const key = `${it.feas}-${it.attr}`; const k = (seen[key] = (seen[key] || 0) + 1) - 1;
+    const d = document.createElement("div");
+    const pillar = DIRECTIONS.find(x => x.n == it.dir)?.p || "vp";
+    d.className = "dot " + pillar;
+    d.textContent = i + 1;
+    d.title = `Idea ${i + 1}: ${it.text}`;
+    d.style.left = `calc(${((it.feas - 0.5) / 5) * 100}% + ${k * 14}px)`;
+    d.style.top = `${100 - ((it.attr - 0.5) / 5) * 100}%`;
+    m.appendChild(d);
+  });
+  const s = $("#t-idea");
+  s.innerHTML = `<option value="">Choose an idea…</option>` + state.ideas.map((it, i) => `<option value="${i}">Idea ${i + 1}: ${esc((it.text || "(untitled)").slice(0, 70))}</option>`).join("");
+  s.value = state.test.idea ?? "";
+  s.onchange = () => { state.test.idea = s.value; save(); };
+  $("#appendix").value = buildAppendix();
+}
+
+function buildAppendix() {
+  const groups = SRC.map(([v, label]) => {
+    const items = state.ideas.map((it, i) => ({ it, i })).filter(({ it }) => (it.src || "me") === v);
+    if (!items.length) return "";
+    return `${label}:\n` + items.map(({ it, i }) => `- Idea ${i + 1} (direction ${dirName(it.dir)}): ${it.text || "(untitled)"}`).join("\n");
+  }).filter(Boolean);
+  return `Use of AI: ideas and their origin${state.caseName ? " (" + state.caseName + ")" : ""}\nTool: 3.14 Studio, a study app with a Socratic AI coach for the Odyssey 3.14 approach.\n\n` + (groups.join("\n\n") || "No ideas yet.");
+}
+$("#btn-copy").onclick = () => {
+  const t = $("#appendix");
+  navigator.clipboard.writeText(t.value).then(() => { $("#copy-msg").textContent = "Copied."; }, () => { t.focus(); t.select(); $("#copy-msg").textContent = "Text selected. Press Ctrl+C or Cmd+C to copy."; });
+};
+function renderAll() { bindFields(); renderOrth(); renderIdeas(); renderTest(); }
+$("#btn-new").onclick = () => { state = BLANK(); save(); renderAll(); showStep(1); $("#case-name").focus(); };
+$("#btn-example").onclick = () => { state = structuredClone(EXAMPLE); save(); renderAll(); showStep(1); };
+$("#case-name").addEventListener("input", () => { if (state.example) { state.example = false; save(); $("#case-chip").hidden = true; } });
+
+/* ---------- Analyse a company ---------- */
+const AN_EXAMPLE = {
+  example: true, known: true, company: "Vinted", oneLiner: "A peer-to-peer marketplace for second-hand fashion.",
+  dominant: "Fashion retailers design or buy new clothes, hold inventory and sell them in stores or online at a margin.",
+  vp: { customers: "Individuals who want to sell clothes they no longer wear, and buyers looking for cheap second-hand items.", offer: "An app to list, find, buy and ship second-hand clothing between individuals.", price: "Listing is free for sellers; buyers pay the item price plus a buyer protection fee and shipping." },
+  va: { chain: "Users photograph and list items; the platform matches, handles payment and offers prepaid shipping labels; carriers deliver.", resources: "The app, its community and network effects, payment and trust systems, data.", partners: "Parcel carriers and pick-up points, payment providers, advertisers." },
+  contributions: { financial: "Revenue from buyer fees, optional seller promotion and ads; very little capital employed since Vinted holds no stock.", social: "Lets people earn money from clothes they no longer use and buy for less.", environmental: "Extends the life of clothing and reduces demand for new production, though parcel shipping adds emissions." },
+  directions: [{ n: 1, how: "Free listing for sellers and low prices for buyers." }, { n: 6, how: "A platform connecting two groups of stakeholders: sellers and buyers." }, { n: 7, how: "The buyer pays a protection fee instead of the seller paying a commission; the course cites Vinted as a freemium example." }, { n: 11, how: "Users' own wardrobes become the inventory." }],
+  orthodoxies: ["A fashion retailer must own and manage its inventory.", "Sellers pay the commission on each sale.", "Fashion means selling new clothes."],
+  unexplored: [{ n: 13, question: "Which complementary services (cleaning, repair, authentication) could Vinted integrate?" }, { n: 12, question: "Could Vinted partner with fashion brands to take back their used items?" }],
+  confidence: "high", caveat: "Example written in advance to show what an analysis looks like. Check facts against recent sources."
+};
+const anPred = new Set();
+$("#an-pick").innerHTML = DIRECTIONS.map(d => `<button type="button" class="${d.p}" data-n="${d.n}" aria-pressed="false" title="${esc(d.t)}">${icon(d.n)}${d.n}</button>`).join("");
+$$("#an-pick button").forEach(b => b.onclick = () => {
+  const n = +b.dataset.n; anPred.has(n) ? anPred.delete(n) : anPred.add(n);
+  b.setAttribute("aria-pressed", anPred.has(n));
+});
+function renderAnalysis(a, pred) {
+  if (!a.known) {
+    $("#an-result").innerHTML = `<div class="an-res"><p>${esc(a.caveat || "The AI does not know this company well enough to analyse it. Try adding context, or a better-known company.")}</p></div>`;
+    return;
+  }
+  const used = (a.directions || []).filter(d => DIRECTIONS.some(x => x.n === +d.n));
+  const usedN = new Set(used.map(d => +d.n));
+  const hits = [...pred].filter(n => usedN.has(n));
+  const col = (k, title, rows) => `<div class="an-col ${k}"><h4>${icon(k)}${title}</h4><dl>${rows.map(([t, v]) => `<dt>${t}</dt><dd>${esc(v || "—")}</dd>`).join("")}</dl></div>`;
+  $("#an-result").innerHTML = `<div class="an-res">
+    <div class="top"><div><h3>${esc(a.company)}</h3><p>${esc(a.oneLiner || "")}</p></div><span class="conf">${a.example ? "Example analysis" : `Confidence: ${esc(a.confidence || "medium")}`}</span></div>
+    ${a.dominant ? `<div class="an-sec"><h4>The industry's dominant model</h4><p>${esc(a.dominant)}</p></div>` : ""}
+    <div class="an-sec"><h4>Its business model, pillar by pillar</h4><div class="an-cols">
+      ${col("vp", "Value proposition", [["Customers", a.vp?.customers], ["Offer", a.vp?.offer], ["Price", a.vp?.price]])}
+      ${col("va", "Value architecture", [["Value chain", a.va?.chain], ["Resources", a.va?.resources], ["Partners", a.va?.partners]])}
+      ${col("pe", "Contributions", [["Financial", a.contributions?.financial], ["Social", a.contributions?.social], ["Environmental", a.contributions?.environmental]])}
+    </div></div>
+    <div class="an-sec"><h4>Directions it uses</h4>
+      ${pred.size ? `<p class="an-score">You spotted <b>${hits.length} of ${usedN.size}</b> directions.${[...pred].filter(n => !usedN.has(n)).length ? ` You also picked ${[...pred].filter(n => !usedN.has(n)).join(", ")}: ask the coach whether they could be defended.` : ""}</p>` : ""}
+      <div class="an-dirs">${used.map(d => { const D = DIRECTIONS.find(x => x.n === +d.n); return `<div class="an-dir ${D.p}"><b>${icon(D.n)}${D.n}. ${esc(D.t)}</b><span>${esc(d.how)}</span>${pred.size ? `<span class="tag ${pred.has(D.n) ? "hit" : "miss"}">${pred.has(D.n) ? "You predicted this" : "You missed this one"}</span>` : ""}</div>`; }).join("")}</div>
+    </div>
+    ${(a.orthodoxies || []).length ? `<div class="an-sec"><h4>Industry orthodoxies it challenged</h4><ul class="an-list">${a.orthodoxies.map(o => `<li>${esc(o)}</li>`).join("")}</ul></div>` : ""}
+    ${(a.unexplored || []).length ? `<div class="an-turn"><h4 style="margin:0;color:var(--ink)">Your turn: directions it has not used yet</h4><ul class="an-list">${a.unexplored.filter(u => DIRECTIONS.some(x => x.n === +u.n)).map(u => { const D = DIRECTIONS.find(x => x.n === +u.n); return `<li class="${D.p}"><b>${D.n}. ${esc(D.t)}:</b> ${esc(u.question)}</li>`; }).join("")}</ul>
+      <div class="row"><button class="btn small" id="an-coach"${coachReady ? "" : " hidden"}>Discuss this analysis with the coach</button></div></div>` : ""}
+    <p class="note">${esc(a.caveat || "")} AI analyses can contain errors or outdated facts: check them before using them in an assignment.</p>
+  </div>`;
+  $("#an-coach")?.addEventListener("click", () => ask(`I analysed ${a.company} with the Odyssey 3.14 framework. Directions identified: ${used.map(d => d.n).join(", ")}. Orthodoxies challenged: ${(a.orthodoxies || []).join(" / ")}. Ask me questions to check that I understand why these directions apply, and challenge one of them.`, false));
+}
+let anCtl = null;
+$("#an-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const company = $("#an-company").value.trim();
+  if (!company) { $("#an-status").textContent = "Enter a company name first."; $("#an-company").focus(); return; }
+  if (!sample) { $("#an-status").textContent = $("#offline").textContent; return; }
+  const context = $("#an-context").value.trim();
+  $("#an-go").disabled = true; $("#an-stop").hidden = false; $("#an-status").textContent = "Analysing… this can take up to a minute.";
+  anCtl = new AbortController();
+  const prompt = `You are an expert in the Odyssey 3.14 approach to business model innovation (Lehmann-Ortega & Musikas, HEC Paris, 2nd edition 2024).
+Framework: 3 pillars. Value proposition (customers, offer, price). Value architecture (value chain, resources and competencies, partners). Contributions (financial: revenue, costs, capital employed; social; environmental).
+The 14 directions: ${DIRECTIONS.map(d => `${d.n}. ${d.t}`).join("; ")}. Directions 1–7 act on the value proposition, 8–14 on the value architecture.
+
+Analyse the business model of: ${company}${context ? ` (context: ${context})` : ""}.
+Be factual and concise (one or two sentences per field). Only list directions that clearly apply (2 to 5). If you do not know this company well enough, set "known" to false and explain in "caveat".
+Reply with JSON only, in this exact shape:
+{"known": true, "company": "", "oneLiner": "", "dominant": "the industry's dominant business model in one sentence",
+ "vp": {"customers": "", "offer": "", "price": ""},
+ "va": {"chain": "", "resources": "", "partners": ""},
+ "contributions": {"financial": "", "social": "", "environmental": ""},
+ "directions": [{"n": 1, "how": "how the company applies this direction"}],
+ "orthodoxies": ["industry belief the company challenged"],
+ "unexplored": [{"n": 13, "question": "an open question for a student about how the company could use a direction it does not use yet"}],
+ "confidence": "high | medium | low", "caveat": "what may be uncertain or outdated"}`;
+  try {
+    const a = await sample.json(prompt, { signal: anCtl.signal });
+    renderAnalysis(a, new Set(anPred));
+    $("#an-status").textContent = "";
+  } catch (err) {
+    $("#an-status").textContent = err.code === "cancelled" ? "Stopped." : aiError(err.code);
+  } finally {
+    $("#an-go").disabled = false; $("#an-stop").hidden = true;
+  }
+});
+$("#an-stop").onclick = () => anCtl?.abort();
+
+/* ---------- Practice ---------- */
+let qi = 0, right = 0, done = 0, answered = false;
+const order = QUIZ.map((_, i) => i).sort(() => Math.random() - 0.5);
+function renderQuiz() {
+  const q = QUIZ[order[qi % order.length]];
+  const pool = DIRECTIONS.filter(d => d.n !== q.a && !(q.x || []).includes(d.n)).sort(() => Math.random() - 0.5).slice(0, 3).map(d => d.n);
+  const opts = [...pool, q.a].sort(() => Math.random() - 0.5);
+  answered = false;
+  $("#qcard").innerHTML = `<p class="case">${esc(q.c)}</p>
+    <div class="opts">${opts.map(n => { const d = DIRECTIONS.find(x => x.n === n); return `<button data-n="${n}"><span class="num ${d.p}">${n}</span>${esc(d.t)}</button>`; }).join("")}</div>
+    <div id="verdict"></div>`;
+  $$("#qcard .opts button").forEach(b => b.onclick = () => {
+    if (answered) return; answered = true; done++;
+    const ok = +b.dataset.n === q.a; if (ok) right++;
+    $$("#qcard .opts button").forEach(x => { if (+x.dataset.n === q.a) x.classList.add("right"); });
+    if (!ok) b.classList.add("wrong");
+    $("#score").textContent = `${right} / ${done} correct`;
+    $("#verdict").innerHTML = `<div class="verdict" style="display:grid;gap:10px"><div class="verdict-row">${icon(q.a, DIRECTIONS.find(d => d.n === q.a).p)}<p><b class="${ok ? "ok" : "ko"}">${ok ? "Correct." : "Not quite."}</b> Direction ${dirName(q.a)}. ${esc(q.why)}</p></div>
+      <div class="row"><button class="btn small" id="btn-next">Next case</button>${coachReady ? `<button class="btn ghost small" id="btn-why">Discuss with coach</button>` : ""}</div></div>`;
+    $("#btn-next").onclick = () => { qi++; renderQuiz(); };
+    $("#btn-why")?.addEventListener("click", () => ask(`In the quiz, the case was: "${q.c}". The expected answer is direction ${dirName(q.a)}. I chose ${dirName(b.dataset.n)}. Help me understand the difference, and whether my answer could also be defended.`));
+  });
+}
+
+/* ---------- Coach ---------- */
+const RULES = `You are the Socratic coach of "3.14 Studio", a study app for HEC Paris students learning the Odyssey 3.14 approach to business model innovation (Lehmann-Ortega, Musikas & Schoettl).
+
+Framework you teach:
+- 3 pillars (2nd edition, 2024): Value proposition (what is offered, to whom, at what price), Value architecture (value chain, resources and competencies, partners/ecosystem), Contributions (financial: revenue, costs, capital employed, ROCE = (revenue − costs) / capital employed; plus social and environmental contributions). "3.14" = 3 pillars and 14 directions.
+- Three critical prerequisites: anticipating trends, building on customer insights, challenging industry beliefs.
+- Process: (1) describe the industry's dominant business model and list its orthodoxies (shared, unquestioned beliefs); (2) generate ideas by challenging orthodoxies with the 14 directions; (3) select ideas (attractiveness × feasibility), check the contributions, test the riskiest assumption cheaply, and plan implementation alongside the existing model. Strong models usually combine several directions.
+- The 14 directions, with the course's guiding questions and examples:
+${DIRECTIONS.map(d => `${d.n}. ${d.t} (${d.p === "vp" ? "value proposition" : "value architecture"}). Questions: ${d.qs.join(" ")} Course examples: ${d.ex.map(e => e[0]).join(", ")}.`).join("\n")}
+
+How you coach:
+- Never do the student's work. Do not write their business model, orthodoxies or ideas for them. Ask probing questions, point to a direction worth exploring, and name weaknesses precisely (vague customers, features listed as orthodoxies, ideas with no logic on contributions, ideas that break no orthodoxy).
+- If the student explicitly asks for an example, give one from a DIFFERENT industry, then ask them to transpose it.
+- Start with one specific thing they did well. Keep answers under 160 words. Use short paragraphs and "- " bullets; **bold** sparingly. End with exactly one question for the student.
+- Reply in the language the student writes in (English or French).`;
+
+let coachReady = false, sample = null, turns = [], ctl = null, busy = false;
+function md(text) {
+  const lines = esc(text).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").split(/\n/);
+  let html = "", inList = false;
+  for (const l of lines) {
+    const m = l.match(/^\s*[-*•]\s+(.*)/);
+    if (m) { if (!inList) { html += "<ul>"; inList = true; } html += `<li>${m[1]}</li>`; continue; }
+    if (inList) { html += "</ul>"; inList = false; }
+    if (l.trim()) html += `<p>${l.replace(/^#+\s*/, "")}</p>`;
+  }
+  return html + (inList ? "</ul>" : "");
+}
+function addMsg(cls, html) {
+  const d = document.createElement("div"); d.className = "msg " + cls; d.innerHTML = html;
+  $("#log").appendChild(d); $("#log").scrollTop = $("#log").scrollHeight; return d;
+}
+function caseSummary() {
+  const s = state;
+  const ideas = s.ideas.map((it, i) => `Idea ${i + 1} [origin: ${(SRC.find(x => x[0] === (it.src || "me")) || SRC[0])[1]}; direction: ${dirName(it.dir)}; breaks: ${it.orth !== "" && s.orthodoxies[it.orth] ? s.orthodoxies[it.orth] : "unspecified"}; revenue ${it.rev || "?"}, costs ${it.cost || "?"}, capital ${it.cap || "?"}, people and planet ${it.planet || "?"}; attractiveness ${it.attr}/5, feasibility ${it.feas}/5]: ${it.text || "(empty)"}`).join("\n") || "(none yet)";
+  return `CASE: ${s.caseName || "(unnamed)"}
+DOMINANT MODEL
+Value proposition — Who: ${s.vp.who || "?"} | What: ${s.vp.what || "?"} | Price: ${s.vp.price || "?"}
+Value architecture — Value chain: ${s.va.chain || "?"} | Resources: ${s.va.resources || "?"} | Partners: ${s.va.partners || "?"}
+Contributions — Revenue: ${s.pe.revenue || "?"} | Costs: ${s.pe.costs || "?"} | Capital: ${s.pe.capital || "?"} | People and planet: ${s.pe.impact || "?"}
+ORTHODOXIES
+${s.orthodoxies.filter(Boolean).map((o, i) => `O${i + 1}. ${o}`).join("\n") || "(none yet)"}
+IDEAS
+${ideas}
+TEST PLAN — Idea: ${s.test.idea !== "" && s.ideas[s.test.idea] ? "Idea " + (+s.test.idea + 1) : "?"} | Riskiest assumption: ${s.test.assumption || "?"} | Experiment: ${s.test.experiment || "?"} | Success signal: ${s.test.metric || "?"}`;
+}
+const REVIEW = {
+  1: "Review my step 1 (map of the dominant business model). Is each pillar specific, and do the contributions (financial, social, environmental) follow from the other two pillars?",
+  2: "Review my step 2 (orthodoxies). Are these real orthodoxies (shared, unquestioned beliefs) or just descriptions? Which pillar is under-explored?",
+  3: "Review my step 3 (ideas). Does each idea really break an orthodoxy, is the direction correctly identified, and is the reasoning on contributions credible? Which directions have I not explored?",
+  4: "Stress-test my step 4 plan. Is the riskiest assumption really the riskiest, is the experiment cheap and decisive, and what implementation risks (cannibalisation, capabilities, coexistence with the old model) am I missing?"
+};
+const ERRORS = {
+  cancelled: "",
+  not_granted: "Claude was not allowed for this page. Reload the page and choose Allow when asked, or check the page's Permissions menu.",
+  sampling_disabled: "Claude is not available inside artifacts for this account or organisation. An admin may need to enable it.",
+  session_expired: "Your claude.ai session has expired. Sign in again, then reload the page.",
+  rate_limited: "Too many requests, or your Claude usage limit is reached. Wait a moment, then try again.",
+  capability_disabled: "The AI is switched off in this view. Open the page from claude.ai in your browser.",
+  capability_removed: "This Claude app version cannot run the AI features. Open the page on claude.ai in a browser.",
+  not_declared: "This version of the page is not allowed to use Claude.",
+  refused: "Claude declined this request. Rephrase it and try again.",
+  invalid_json: "The answer came back in an unexpected format. Try again.",
+  empty_completion: "Claude returned an empty answer. Try again with a shorter request."
+};
+const PERMANENT = ["not_granted", "sampling_disabled", "capability_disabled", "capability_removed", "not_declared"];
+const aiError = code => (ERRORS[code] ?? "The AI could not answer. Try again in a moment.") + (code && code !== "cancelled" ? ` (error: ${code})` : "");
+async function ask(text, withCase = true) {
+  if (!coachReady || busy || !text.trim()) return;
+  busy = true; $("#btn-send").disabled = true; $("#btn-stop").hidden = false;
+  addMsg("me", `<p>${esc(text)}</p>`);
+  const content = withCase ? `${text}\n\n--- Student's current workbook ---\n${caseSummary()}` : text;
+  turns.push({ role: "user", content });
+  const input = turns.map((t, i) => i === 0 ? { role: "user", content: `${RULES}\n\n--- Student message ---\n${t.content}` } : t).slice(-12);
+  if (input[0].role !== "user") input.shift();
+  const out = addMsg("ai", "<p><i>Thinking…</i></p>");
+  ctl = new AbortController();
+  try {
+    const { text: answer } = await sample(input, { cache: false, signal: ctl.signal, onText: ({ text }) => { out.innerHTML = md(text); $("#log").scrollTop = $("#log").scrollHeight; } });
+    out.innerHTML = md(answer);
+    turns.push({ role: "assistant", content: answer });
+  } catch (e) {
+    turns.pop();
+    if (e.text) out.innerHTML = md(e.text); else out.remove();
+    const msg = e.code === "cancelled" ? "" : aiError(e.code);
+    if (msg) addMsg("err", `<p>${esc(msg)}</p>`);
+    if (PERMANENT.includes(e.code)) { setCoach(false); $("#offline").textContent = aiError(e.code); }
+  } finally {
+    busy = false; $("#btn-send").disabled = false; $("#btn-stop").hidden = true;
+  }
+}
+function setCoach(on) {
+  coachReady = on;
+  if ($("#an-coach")) $("#an-coach").hidden = !on;
+  $("#compose").hidden = !on; $("#offline").hidden = on;
+  $$("[data-review]").forEach(b => b.hidden = !on);
+}
+$("#btn-send").onclick = () => { const v = $("#ask").value; $("#ask").value = ""; ask(v); };
+$("#ask").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#btn-send").click(); } });
+$("#btn-stop").onclick = () => ctl?.abort();
+$("#btn-clear").onclick = () => { turns = []; $("#log").innerHTML = ""; addMsg("ai", "<p>Chat cleared. Your workbook is untouched.</p>"); };
+$$("#quick button").forEach(b => b.onclick = () => ask(b.dataset.q, !/Quiz me/.test(b.dataset.q)));
+$$("[data-review]").forEach(b => b.onclick = () => { showView("work"); ask(REVIEW[b.dataset.review]); });
+
+/* ---------- Boot ---------- */
+setCoach(false);
+renderAnalysis(AN_EXAMPLE, new Set());
+$("#offline").textContent = "Connecting the AI coach…";
+renderAll(); showStep(1); renderQuiz();
+try { const v = localStorage.getItem(KEY + "-view"); if (v) showView(v); } catch (e) {}
+(async () => {
+  const inViewer = !!window.claude && window.top !== window.self;
+  try { sample = window.claude ? await window.claude.use("sample") : null; } catch (e) { sample = null; }
+  if (!window.claude) $("#an-result").insertAdjacentHTML("beforebegin", `<p class="an-score">This copy runs without AI. To try the Analyse tab, open the <a href="https://claude.ai/artifact/4dvNsaEYAP51sZMRWBN4ma" target="_blank" rel="noopener">claude.ai version</a> while signed in. The analysis below is a prepared example.</p>`);
+  $("#offline").textContent = !window.claude
+    ? "This copy of 3.14 Studio runs without AI. The AI coach and the Analyse tab work in the claude.ai version (claude.ai/artifact/4dvNsaEYAP51sZMRWBN4ma) for anyone signed in to Claude. Learn, Workshop and Practice work fully here."
+    : !inViewer
+      ? "The AI features don't run when the page is opened on its own. Open it from claude.ai (claude.ai/artifact/…) while signed in. Learn, Workshop and Practice still work."
+      : "The AI features are not available in this view. Make sure you are signed in to claude.ai and that Claude is enabled for artifacts in your account. Learn, Workshop and Practice still work.";
+  setCoach(!!sample);
+})();
+</script>
+</body></html>
