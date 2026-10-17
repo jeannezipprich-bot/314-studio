@@ -2,7 +2,7 @@
 
 A study app with a Socratic AI coach for the Odyssey 3.14 approach to business model innovation.
 
-**Open the app:** https://jeannezipprich-bot.github.io/314-studio/
+**Open the app:** https://jeannezipprich-bot.github.io/314-studio/ (GitHub Pages, no AI) · [claude.ai version with the AI coach](https://claude.ai/artifact/4dvNsaEYAP51sZMRWBN4ma)
 
 - **Learn**: the three pillars (value proposition, value architecture, contributions), the three critical prerequisites, the three stages, and an interactive board of the 14 directions with the course questions, examples and diagrams.
 - **Analyse**: name a company; the AI maps it onto the three pillars, the directions it uses, the orthodoxies it challenged and directions it has not explored. Students can predict the directions first and compare.
